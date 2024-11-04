@@ -127,10 +127,15 @@ int main(int argc, char* argv[])
 		float greenColor = (sin(timeValue * speed + 2) / 2.0f) + 0.5f;
 		float blueColor = (sin(timeValue * speed + 4) / 2.0f) + 0.5f;
 
+		float offSet = (sin(timeValue * speed) / 2.0f) + 0.5f;
+
 		int vertexColorLocation = glGetUniformLocation(shaderProgram, "redShift");
+		int vertexLocation = glGetUniformLocation(shaderProgram, "posShift");
+
 
 		glUseProgram(shaderProgram);
 		glUniform4f(vertexColorLocation, redColor, greenColor, blueColor, 1.0f);
+
 		//Draw stuff
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
