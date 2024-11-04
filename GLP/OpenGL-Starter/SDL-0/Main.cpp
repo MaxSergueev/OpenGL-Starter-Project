@@ -45,10 +45,12 @@ int main(int argc, char* argv[])
 	//Describe the shape by its vertices
 
 	float vertices[] = {
-		-0.5f, -0.5f, 0.0f,
-		 0.5f, -0.5f, 0.0f,
-		 0.0f,  0.5f, 0.0f
+		// positions             // colors
+			 0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,
+			-0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,
+			 0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f
 	};
+
 
 	//Create an ID to be given at object generation
 	unsigned int vbo;
@@ -58,7 +60,7 @@ int main(int argc, char* argv[])
 	string vs = LoadShader("simpleVertex.shader");
 	const char* vertexShaderSource = vs.c_str();
 
-	string fs = LoadShader("blinkFragment.shader");
+	string fs = LoadShader("simpleFragment.shader");
 	const char* fragmentShaderSource = fs.c_str();
 
 	//Create identifiers for shaders and give source
@@ -91,8 +93,13 @@ int main(int argc, char* argv[])
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	// Position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+	// Color attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -114,13 +121,14 @@ int main(int argc, char* argv[])
 		}
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear the screen
 
-		float speed = 50.0f;
+		float speed = 10.0f;
 		float timeValue = (float)SDL_GetTicks() / 1000;
 		float redColor = (sin(timeValue * speed) / 2.0f) + 0.5f;
 		float greenColor = (sin(timeValue * speed + 2) / 2.0f) + 0.5f;
 		float blueColor = (sin(timeValue * speed + 4) / 2.0f) + 0.5f;
 
 		int vertexColorLocation = glGetUniformLocation(shaderProgram, "redShift");
+
 		glUseProgram(shaderProgram);
 		glUniform4f(vertexColorLocation, redColor, greenColor, blueColor, 1.0f);
 		//Draw stuff
