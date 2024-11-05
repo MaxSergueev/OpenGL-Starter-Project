@@ -121,20 +121,26 @@ int main(int argc, char* argv[])
 		}
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear the screen
 
-		float speed = 10.0f;
+		float speed = 5.0f;
 		float timeValue = (float)SDL_GetTicks() / 1000;
+		float scale = (sin(timeValue * speed) * 0.5f);
+
 		float redColor = (sin(timeValue * speed) / 2.0f) + 0.5f;
 		float greenColor = (sin(timeValue * speed + 2) / 2.0f) + 0.5f;
 		float blueColor = (sin(timeValue * speed + 4) / 2.0f) + 0.5f;
 
-		float offSet = (sin(timeValue * speed) / 2.0f) + 0.5f;
+		float xOffSet = (sin(timeValue * speed)) + 0.5f;
 
 		int vertexColorLocation = glGetUniformLocation(shaderProgram, "redShift");
-		int vertexLocation = glGetUniformLocation(shaderProgram, "posShift");
+		int vertexLocation = glGetUniformLocation(shaderProgram, "xOffSet");
+
+		int scaleLocation = glGetUniformLocation(shaderProgram, "scale");
+		glUniform1f(scaleLocation, scale);
 
 
 		glUseProgram(shaderProgram);
 		glUniform4f(vertexColorLocation, redColor, greenColor, blueColor, 1.0f);
+		glUniform3f(vertexLocation, xOffSet, 0.0f, 0.0f);
 
 		//Draw stuff
 		glDrawArrays(GL_TRIANGLES, 0, 3);
