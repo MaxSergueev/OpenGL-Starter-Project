@@ -129,7 +129,7 @@ int main(int argc, char* argv[])
 		float greenColor = (sin(timeValue * speed + 2) / 2.0f) + 0.5f;
 		float blueColor = (sin(timeValue * speed + 4) / 2.0f) + 0.5f;
 
-		float xOffSet = (sin(timeValue * speed)) + 0.5f;
+		float xOffSet = sin(timeValue * speed) / 2;
 
 		int vertexColorLocation = glGetUniformLocation(shaderProgram, "redShift");
 		int vertexLocation = glGetUniformLocation(shaderProgram, "xOffSet");
