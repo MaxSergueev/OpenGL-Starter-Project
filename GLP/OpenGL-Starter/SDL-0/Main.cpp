@@ -3,6 +3,7 @@
 #include <glew.h>
 #include <string>
 #include <fstream>
+#include <vector>
 using namespace std;
 //#define GLEW_STATIC
 string LoadShader(string fileName);
@@ -129,7 +130,7 @@ int main(int argc, char* argv[])
 	float speedX = 0.0f;
 	float speedY = 0.0f;
 
-
+	int bodySegments = 5;
 
 	bool isRunning = true;
 	while (isRunning) {
@@ -163,7 +164,7 @@ int main(int argc, char* argv[])
 				}
 				if (event.key.keysym.sym == SDLK_p) {
 					std::cout << "Grow" << std::endl;
-					glDrawArrays(GL_TRIANGLE_FAN, 0, 5);
+					bodySegments += 1;
 				}
 				break;
 			default:
@@ -202,11 +203,13 @@ int main(int argc, char* argv[])
 		//Draw stuff
 		glDrawArrays(GL_TRIANGLE_FAN, 0, 5);
 
-		//Draw Segment
-		glUniform3f(verteLocation, offSetX -speedX*20.0f, offSetY-speedY*20.0f, 0.0f);
-		glDrawArrays(GL_TRIANGLE_FAN, 0, 5);
-		glUniform3f(verteLocation, offSetX - speedX * 40.0f, offSetY - speedY * 40.0f, 0.0f);
-		glDrawArrays(GL_TRIANGLE_FAN, 0, 5);
+		///////////////////// Draw Segments //////////////////////////
+		for (int i = 0; i < bodySegments; i++) {
+			if (i != 0) {
+				glUniform3f(verteLocation, offSetX - speedX * (20.0f * i), offSetY - speedY * (20.0f * i), 0.0f);
+				glDrawArrays(GL_TRIANGLE_FAN, 0, 5);
+			}
+		}
 
 		///
 		glUseProgram(shaderProgram2);
