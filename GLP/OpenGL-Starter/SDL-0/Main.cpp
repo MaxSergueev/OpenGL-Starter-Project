@@ -146,19 +146,19 @@ int main(int argc, char* argv[])
 				if (event.key.keysym.sym == SDLK_ESCAPE) {
 					isRunning = false;
 				}
-				if (event.key.keysym.sym == SDLK_LEFT) {
+				if (event.key.keysym.sym == SDLK_LEFT && speedX != 0.01f) {
 					speedX = -0.01f;
 					speedY = 0.0f;
 				}
-				if (event.key.keysym.sym == SDLK_RIGHT) {
+				if (event.key.keysym.sym == SDLK_RIGHT && speedX != -0.01f) {
 					speedX = 0.01f;
 					speedY = 0.0f;
 				}
-				if (event.key.keysym.sym == SDLK_UP) {
+				if (event.key.keysym.sym == SDLK_UP && speedY != -0.01f) {
 					speedX = 0.0f;
 					speedY = 0.01f;
 				}
-				if (event.key.keysym.sym == SDLK_DOWN) {
+				if (event.key.keysym.sym == SDLK_DOWN && speedY != 0.01f) {
 					speedX = 0.0f;
 					speedY = -0.01f;
 				}
