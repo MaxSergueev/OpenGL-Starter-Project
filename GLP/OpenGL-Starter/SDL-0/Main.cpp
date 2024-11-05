@@ -145,6 +145,11 @@ int main(int argc, char* argv[])
 			case SDL_QUIT:
 				isRunning = false;
 				break;
+			case SDL_KEYDOWN:
+				if (event.key.keysym.sym == SDLK_ESCAPE) {
+					isRunning = false;
+				}
+				break;
 			default:
 				break;
 			}
@@ -157,9 +162,6 @@ int main(int argc, char* argv[])
 
 		offSetX += speedX;
 		offSetY += speedY;
-
-		std::cout << vertices[6*3] + offSetX << std::endl;
-		std::cout << vertices[6*9] + offSetX << std::endl;
 
 		if ((vertices[6*3] + offSetX > 1) || (vertices[6*9] + offSetX < -1)) {
 			speedX *= -1;
