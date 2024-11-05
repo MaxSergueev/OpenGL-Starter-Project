@@ -46,18 +46,11 @@ int main(int argc, char* argv[])
 
 	float vertices[] = {
 		// positions             // colors
-		0.0f,  0.1f / 5.0f, 0.0f,  1.0f, 1.0f, 1.0f,
-		0.0f,  1.3f / 5.0f, 0.0f,  0.0f, 1.0f, 0.0f,
-		0.2f / 5.0f, 0.5f / 5.0f, 0.0f,  0.0f, 0.0f, 1.0f,
-		1.0f / 5.0f,  0.5f / 5.0f, 0.0f,  1.0f, 0.0f, 0.0f,
-		0.5f / 5.0f,  0.0f,  0.0f,  0.0f, 1.0f, 0.0f,
-		0.7f / 5.0f, -0.7f / 5.0f,  0.0f,  0.0f, 0.0f, 1.0f,
-		0.0f,  -0.3f / 5.0f,  0.0f,  1.0f, 0.0f, 0.0f,
-		-0.7f / 5.0f, -0.7f / 5.0f,  0.0f,  0.0f, 1.0f, 0.0f,
-		-0.5f / 5.0f,   0.0f,  0.0f,  0.0f, 0.0f, 1.0f,
-		-1.0f / 5.0f,   0.5f / 5.0f,  0.0f,  1.0f, 0.0f, 0.0f,
-		-0.2f / 5.0f,  0.5f / 5.0f,  0.0f,  0.0f, 1.0f, 0.0f,
-		0.0f,  1.3f / 5.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+		-0.1f,  -0.1f, 0.0f,  1.0f, 1.0f, 1.0f, //A
+		0.1f,  -0.1f, 0.0f,  0.0f, 1.0f, 0.0f,	//B
+		0.1f, 0.1f, 0.0f,  0.0f, 0.0f, 1.0f,	//C
+		-0.1f,  0.1f, 0.0f,  1.0f, 0.0f, 0.0f,  //D
+		0.1f,  -0.1f,  0.0f,  0.0f, 1.0f, 0.0f, //B
 
 		/////
 		0.0f, 0.1f, 0.0f, 1.0f, 1.0f, 1.0f,
@@ -133,12 +126,15 @@ int main(int argc, char* argv[])
 	float offSetX = 0.0f;
 	float offSetY = 0.0f;
 
-	float speedX = 0.02f;
-	float speedY = 0.01f;
+	float speedX = 0.0f;
+	float speedY = 0.0f;
+
+
 
 	bool isRunning = true;
 	while (isRunning) {
 		// Inputs
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear the screen
 		SDL_Event event;
 		while (SDL_PollEvent(&event)) {
 			switch (event.type) {
@@ -149,12 +145,32 @@ int main(int argc, char* argv[])
 				if (event.key.keysym.sym == SDLK_ESCAPE) {
 					isRunning = false;
 				}
+				if (event.key.keysym.sym == SDLK_LEFT) {
+					speedX = -0.01f;
+					speedY = 0.0f;
+				}
+				if (event.key.keysym.sym == SDLK_RIGHT) {
+					speedX = 0.01f;
+					speedY = 0.0f;
+				}
+				if (event.key.keysym.sym == SDLK_UP) {
+					speedX = 0.0f;
+					speedY = 0.01f;
+				}
+				if (event.key.keysym.sym == SDLK_DOWN) {
+					speedX = 0.0f;
+					speedY = -0.01f;
+				}
+				if (event.key.keysym.sym == SDLK_p) {
+					std::cout << "Grow" << std::endl;
+					glDrawArrays(GL_TRIANGLE_FAN, 0, 5);
+				}
 				break;
 			default:
 				break;
 			}
 		}
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear the screen
+		
 
 		float speed = 0.5f;
 		float timeValue = (float)SDL_GetTicks() / 1000;
@@ -163,11 +179,11 @@ int main(int argc, char* argv[])
 		offSetX += speedX;
 		offSetY += speedY;
 
-		if ((vertices[6*3] + offSetX > 1) || (vertices[6*9] + offSetX < -1)) {
-			speedX *= -1;
+		if ((vertices[6] + offSetX > 1) || (vertices[0] + offSetX < -1)) {
+			speedX = 0;
 		}
-		if ((vertices[7] + offSetY > 1) || (vertices[6 * 5 + 1] + offSetY < -1)) {
-			speedY *= -1;
+		if ((vertices[13] + offSetY > 1) || (vertices[1] + offSetY < -1)) {
+			speedY = 0;
 		}
 		
 
@@ -184,7 +200,13 @@ int main(int argc, char* argv[])
 		glUniform3f(verteLocation, offSetX, offSetY, 0.0f);
 
 		//Draw stuff
-		glDrawArrays(GL_TRIANGLE_FAN, 0, 12);
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 5);
+
+		//Draw Segment
+		glUniform3f(verteLocation, offSetX -speedX*20.0f, offSetY-speedY*20.0f, 0.0f);
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 5);
+		glUniform3f(verteLocation, offSetX - speedX * 40.0f, offSetY - speedY * 40.0f, 0.0f);
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 5);
 
 		///
 		glUseProgram(shaderProgram2);
@@ -193,7 +215,8 @@ int main(int argc, char* argv[])
 		float blueColor = (sin(timeValue * speed + 4) / 2.0f) + 0.5f;
 		int vertexColorLocation = glGetUniformLocation(shaderProgram2, "redShift");
 		glUniform4f(vertexColorLocation, redColor, greenColor, blueColor, 1.0f);
-		glDrawArrays(GL_TRIANGLE_FAN, 13, 15);
+		glDrawArrays(GL_TRIANGLE_FAN, 6, 8);
+
 
 		SDL_GL_SwapWindow(Window); // Swapbuffer
 	}
