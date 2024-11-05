@@ -19,8 +19,8 @@ int main(int argc, char* argv[])
 	}
 	///////////SETTING UP SDL/////////////
 	//Create a simple window
-	int width = 500;
-	int height = 500;
+	int width = 1000;
+	int height = 1000;
 	unsigned int center = SDL_WINDOWPOS_CENTERED;
 	SDL_Window* Window = SDL_CreateWindow("My window", center, center, width, height, SDL_WINDOW_OPENGL);
 	//SDL_WINDOW_OPENGL is a u32 flag !
@@ -46,9 +46,25 @@ int main(int argc, char* argv[])
 
 	float vertices[] = {
 		// positions             // colors
-			 0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,
-			-0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,
-			 0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f
+		0.0f,  0.1f / 5.0f, 0.0f,  1.0f, 1.0f, 1.0f,
+		0.0f,  1.3f / 5.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+		0.2f / 5.0f, 0.5f / 5.0f, 0.0f,  0.0f, 0.0f, 1.0f,
+		1.0f / 5.0f,  0.5f / 5.0f, 0.0f,  1.0f, 0.0f, 0.0f,
+		0.5f / 5.0f,  0.0f,  0.0f,  0.0f, 1.0f, 0.0f,
+		0.7f / 5.0f, -0.7f / 5.0f,  0.0f,  0.0f, 0.0f, 1.0f,
+		0.0f,  -0.3f / 5.0f,  0.0f,  1.0f, 0.0f, 0.0f,
+		-0.7f / 5.0f, -0.7f / 5.0f,  0.0f,  0.0f, 1.0f, 0.0f,
+		-0.5f / 5.0f,   0.0f,  0.0f,  0.0f, 0.0f, 1.0f,
+		-1.0f / 5.0f,   0.5f / 5.0f,  0.0f,  1.0f, 0.0f, 0.0f,
+		-0.2f / 5.0f,  0.5f / 5.0f,  0.0f,  0.0f, 1.0f, 0.0f,
+		0.0f,  1.3f / 5.0f, 0.0f,  0.0f, 1.0f, 0.0f
+	};
+
+	float vertices2[] = {
+		// positions             // colors
+		0.0f,  0.1f / 5.0f, 0.0f,  1.0f, 1.0f, 1.0f,
+		0.0f,  1.3f / 5.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+		0.2f / 5.0f, 0.5f / 5.0f, 0.0f,  0.0f, 0.0f, 1.0f
 	};
 
 
@@ -105,6 +121,11 @@ int main(int argc, char* argv[])
 	glDepthFunc(GL_LESS);
 
 
+	float offSetX = 0.0f;
+	float offSetY = 0.0f;
+
+	float speedX = 0.02f;
+	float speedY = 0.01f;
 
 	bool isRunning = true;
 	while (isRunning) {
@@ -121,18 +142,31 @@ int main(int argc, char* argv[])
 		}
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear the screen
 
-		float speed = 5.0f;
+		float speed = 0.2f;
 		float timeValue = (float)SDL_GetTicks() / 1000;
-		float scale = (sin(timeValue * speed) * 0.5f);
+		float scale = 0.1f;
 
 		float redColor = (sin(timeValue * speed) / 2.0f) + 0.5f;
 		float greenColor = (sin(timeValue * speed + 2) / 2.0f) + 0.5f;
 		float blueColor = (sin(timeValue * speed + 4) / 2.0f) + 0.5f;
 
-		float xOffSet = sin(timeValue * speed) / 2;
+		offSetX += speedX;
+		offSetY += speedY;
+
+		std::cout << vertices[6*3] + offSetX << std::endl;
+		std::cout << vertices[6*9] + offSetX << std::endl;
+
+		if ((vertices[6*3] + offSetX > 1) || (vertices[6*9] + offSetX < -1)) {
+			speedX *= -1;
+		}
+		if ((vertices[7] + offSetY > 1) || (vertices[6 * 5 + 1] + offSetY < -1)) {
+			speedY *= -1;
+		}
+		
 
 		int vertexColorLocation = glGetUniformLocation(shaderProgram, "redShift");
-		int vertexLocation = glGetUniformLocation(shaderProgram, "xOffSet");
+
+		int verteLocation = glGetUniformLocation(shaderProgram, "offSet");
 
 		int scaleLocation = glGetUniformLocation(shaderProgram, "scale");
 		glUniform1f(scaleLocation, scale);
@@ -140,10 +174,10 @@ int main(int argc, char* argv[])
 
 		glUseProgram(shaderProgram);
 		glUniform4f(vertexColorLocation, redColor, greenColor, blueColor, 1.0f);
-		glUniform3f(vertexLocation, xOffSet, 0.0f, 0.0f);
+		glUniform3f(verteLocation, offSetX, offSetY, 0.0f);
 
 		//Draw stuff
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 12);
 
 		SDL_GL_SwapWindow(Window); // Swapbuffer
 	}
