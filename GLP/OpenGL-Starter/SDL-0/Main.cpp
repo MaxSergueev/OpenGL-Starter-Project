@@ -57,14 +57,12 @@ int main(int argc, char* argv[])
 		-0.5f / 5.0f,   0.0f,  0.0f,  0.0f, 0.0f, 1.0f,
 		-1.0f / 5.0f,   0.5f / 5.0f,  0.0f,  1.0f, 0.0f, 0.0f,
 		-0.2f / 5.0f,  0.5f / 5.0f,  0.0f,  0.0f, 1.0f, 0.0f,
-		0.0f,  1.3f / 5.0f, 0.0f,  0.0f, 1.0f, 0.0f
-	};
-
-	float vertices2[] = {
-		// positions             // colors
-		0.0f,  0.1f / 5.0f, 0.0f,  1.0f, 1.0f, 1.0f,
 		0.0f,  1.3f / 5.0f, 0.0f,  0.0f, 1.0f, 0.0f,
-		0.2f / 5.0f, 0.5f / 5.0f, 0.0f,  0.0f, 0.0f, 1.0f
+
+		/////
+		0.0f, 0.1f, 0.0f, 1.0f, 1.0f, 1.0f,
+		-0.2f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+		0.2f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f
 	};
 
 
@@ -79,6 +77,9 @@ int main(int argc, char* argv[])
 	string fs = LoadShader("simpleFragment.shader");
 	const char* fragmentShaderSource = fs.c_str();
 
+	string bfs = LoadShader("blinkFragment.shader");
+	const char* blinkFragmentShaderSource = bfs.c_str();
+
 	//Create identifiers for shaders and give source
 	unsigned int vertexShader;
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -90,18 +91,28 @@ int main(int argc, char* argv[])
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
 	glCompileShader(fragmentShader);
 
+	unsigned int blinkFragmentShader;
+	blinkFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(blinkFragmentShader, 1, &blinkFragmentShaderSource, NULL);
+	glCompileShader(blinkFragmentShader);
+
+	//First Shader
 	unsigned int shaderProgram;
 	shaderProgram = glCreateProgram();
-
-	//now attach shaders to use to the program
 	glAttachShader(shaderProgram, vertexShader);
 	glAttachShader(shaderProgram, fragmentShader);
-	//and link it 
 	glLinkProgram(shaderProgram);
-	//now that the program is complete, we can use it 
 	glUseProgram(shaderProgram);
 
-	////////////////VAO////////////////////
+	//Second Shader
+	unsigned int shaderProgram2;
+	shaderProgram2 = glCreateProgram();
+	glAttachShader(shaderProgram2, vertexShader);
+	glAttachShader(shaderProgram2, blinkFragmentShader);
+	glLinkProgram(shaderProgram2);
+	glUseProgram(shaderProgram2);
+
+	////////////////VAOs////////////////////
 	unsigned int vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
@@ -109,10 +120,8 @@ int main(int argc, char* argv[])
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	// Position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	// Color attribute
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
@@ -142,13 +151,9 @@ int main(int argc, char* argv[])
 		}
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear the screen
 
-		float speed = 0.2f;
+		float speed = 0.5f;
 		float timeValue = (float)SDL_GetTicks() / 1000;
 		float scale = 0.1f;
-
-		float redColor = (sin(timeValue * speed) / 2.0f) + 0.5f;
-		float greenColor = (sin(timeValue * speed + 2) / 2.0f) + 0.5f;
-		float blueColor = (sin(timeValue * speed + 4) / 2.0f) + 0.5f;
 
 		offSetX += speedX;
 		offSetY += speedY;
@@ -164,7 +169,7 @@ int main(int argc, char* argv[])
 		}
 		
 
-		int vertexColorLocation = glGetUniformLocation(shaderProgram, "redShift");
+		//int vertexColorLocation = glGetUniformLocation(shaderProgram, "redShift");
 
 		int verteLocation = glGetUniformLocation(shaderProgram, "offSet");
 
@@ -173,11 +178,20 @@ int main(int argc, char* argv[])
 
 
 		glUseProgram(shaderProgram);
-		glUniform4f(vertexColorLocation, redColor, greenColor, blueColor, 1.0f);
+		//glUniform4f(vertexColorLocation, redColor, greenColor, blueColor, 1.0f);
 		glUniform3f(verteLocation, offSetX, offSetY, 0.0f);
 
 		//Draw stuff
 		glDrawArrays(GL_TRIANGLE_FAN, 0, 12);
+
+		///
+		glUseProgram(shaderProgram2);
+		float redColor = (sin(timeValue * speed) / 2.0f) + 0.5f;
+		float greenColor = (sin(timeValue * speed + 2) / 2.0f) + 0.5f;
+		float blueColor = (sin(timeValue * speed + 4) / 2.0f) + 0.5f;
+		int vertexColorLocation = glGetUniformLocation(shaderProgram2, "redShift");
+		glUniform4f(vertexColorLocation, redColor, greenColor, blueColor, 1.0f);
+		glDrawArrays(GL_TRIANGLE_FAN, 13, 15);
 
 		SDL_GL_SwapWindow(Window); // Swapbuffer
 	}
